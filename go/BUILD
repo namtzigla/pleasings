@@ -11,3 +11,9 @@ filegroup(
     srcs = ['go_generate.build_defs'],
     visibility = ['PUBLIC'],
 )
+
+filegroup(
+    name = 'go',
+    srcs = ['go_rules.build_defs'],
+    visibility = ['PUBLIC'],
+)
