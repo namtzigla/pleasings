@@ -606,18 +606,21 @@ def go_get(name:str, get:str|list, repo:str='', deps:list=[], exported_deps:list
             'rm -rf bin' if binary else 'rm -rf pkg',
             'mv $PKG_DIR/bin .' if binary else 'mv $PKG_DIR/pkg .',
         ]
+    outs = {}
     if binary:
-        outs = ['bin/' + name]
+        outs['bin'] = ['bin/' + name]
     else:
-        outs = [f'pkg/{CONFIG.GOOS}_{CONFIG.GOARCH}/{out}' for out in outs]
+        outs['go'] = [f'pkg/{CONFIG.GOOS}_{CONFIG.GOARCH}/{out}' for out in outs]
         # Outputs are created one directory down from where we want them.
         # For most it doesn't matter but the top-level one will get lost.
-        cmd += [f' if [ -f {out}.a ]; then mkdir -p {out} && mv {out}.a {out}; fi' for out in outs]
+        cmd += [f' if [ -f {out}.a ]; then mkdir -p {out} && mv {out}.a {out}; fi' for out in outs['go']]
+        outs['pkg_info'] = 'pkg_info.txt'
     return build_rule(
         name = name,
         outs = outs,
         deps = deps,
         srcs = srcs,
+        cmd = f'echo {get} > $OUS_PKG_INFO',
         exported_deps = exported_deps,
         tools = {
             'go': [CONFIG.GO_TOOL],
